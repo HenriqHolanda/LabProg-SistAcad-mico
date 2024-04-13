@@ -2,88 +2,107 @@
 #include <stdlib.h>
 #include <string.h>
 
-//Decidimos comentar o código linha a linha mais para entendermos melhor o que estamos fazendo do que por necessidade.
+// Definição das entidades principais
+typedef struct Aluno
+{
+    int codigo;
+    char nome[50];
+    char CPF[16];
+    struct Aluno *next;
+} Aluno;
 
-//Pensamos em jeitos diferentes no qual usariamos uma lista única de disciplinas(identificando período pelo código) ou uma única lista de alunos. 
-//Porém vamos fazer do jeito que esta no slide(Uma lista de alunos e uma lista de disciplinas por período).
+typedef struct Disciplina
+{
+    int codigo;
+    char nome[50];
+    char professor[50];
+    int creditos;
+    struct Disciplina *next;
+} Disciplina;
 
-//primeiro vamos definir os tipos Periodo, aluno e disciplina.
-
-//Typedef para colocar outro nome em struct aluno
-typedef struct Aluno{
-    int codigo; //int que recebe o código do aluno
-    char nome[50]; //array de char para receber o nome
-    char CPF[16];  //array de char para receber o CPF
-
-    struct Aluno *next; //Ponteiro que vai apontar para o próximo Nó.
-
-}Aluno;//tipo Aluno
-
-typedef struct Disciplina{
-    int codigo; //int que recebe o código da disciplina
-    char nome[50]; //array de char para receber o nome da disciplina
-    char professor[50]; //array de char para receber o nome do professor
-    int creditos; //inteiro que recebe o número de créditos ta disciplina  
-    
-    struct Disciplina *next; //ponteiro que aponta para o próximo nó
-    
-}Disciplina; //tipo Disciplina
-
-typedef struct Periodo{
-    int ano; // inteiro que vai guardar o ano do período
-    int semestre; //inteiro que vai guardar o semestre do período
-    Aluno *alunos; //ponteiro do tipo Aluno (já criado) onde teremos a lista encadeada de alunos.
-    Disciplina *disciplinas; //ponteiro do tipo Disciplina (já criado) onde teremos a lista encadeada de disciplinas
+typedef struct Periodo
+{
+    float codigo;
+    Aluno *alunos;
+    Disciplina *disciplinas;
     struct Periodo *next;
-
-}Periodo;//tipo Periodo
-
+    struct Periodo *previous;
+} Periodo;
+// Para ter a referencia do primeiro
 Periodo *periodos = NULL;
 
-//Agora que definimos nossos 3 tipos e as informações de cada um deles, vamos escrever as funções para criar cada um deles.
-
-//Esse p no final de cada parâmetro é só para diferenciar oque é paramêtro ao escrever a função.
-Aluno* criarAluno(int codigop, const char* nomep, const char* CPFp){
-    Aluno* novoAluno = (Aluno *)malloc(sizeof(Aluno));
-    if(novoAluno == NULL){
+Aluno *buscarAluno(Periodo *p, int codigo)
+{
+    Aluno *aux = p->alunos;
+    while (aux->codigo != codigo && aux != NULL)
+    {
+        aux = aux->next;
+    }
+    return aux;
+}
+Disciplina *buscarDisciplina(Periodo *p, int codigo)
+{
+    Disciplina *aux = p->alunos;
+    while (aux->codigo != codigo && aux != NULL)
+    {
+        aux = aux->next;
+    }
+    return aux;
+}
+Periodo *buscarPeriodo(float codigo)
+{
+    Periodo *aux = periodos;
+    while (aux->codigo != codigo && aux != NULL)
+        ;
+    {
+        aux = aux->next;
+    }
+}
+// Funções auxiliares para criação de Entidades
+void criarAluno(Periodo **p, int codigop, const char *nomep, const char *CPFp)
+{
+    Aluno *novoAluno = (Aluno *)malloc(sizeof(Aluno));
+    if (novoAluno == NULL)
+    {
         printf("Erro ao alocar memória para aluno");
         exit(1);
     }
-
     novoAluno->codigo = codigop;
     strcpy(novoAluno->nome, nomep);
     strcpy(novoAluno->CPF, CPFp);
-    novoAluno->next = NULL;
-    return novoAluno;
-
+    Aluno *aux = (*p)->alunos;
+    (*p)->alunos = novoAluno;
+    novoAluno->next = aux;
+    prinf("Aluno cadastrado com sucesso\n\n");
 }
 
-Disciplina* criarDisciplina(int codigop, const char* nomep, const char* professorp, int creditosp){
-    Disciplina* novaDisciplina = (Disciplina *)malloc(sizeof(Aluno));
-    if(novaDisciplina == NULL){
+void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *professorp, int creditosp)
+{
+    Disciplina *novaDisciplina = (Disciplina *)malloc(sizeof(Aluno));
+    if (novaDisciplina == NULL)
+    {
         printf("Erro ao alocar memória para aluno");
         exit(1);
     }
-
     novaDisciplina->codigo = codigop;
     strcpy(novaDisciplina->nome, nomep);
     strcpy(novaDisciplina->professor, professorp);
     novaDisciplina->creditos = creditosp;
-    novaDisciplina->next = NULL;
-    return novaDisciplina;
-
+    Disciplina *aux = (*p)->disciplinas;
+    (*p)->disciplinas = novaDisciplina;
+    novaDisciplina->next = aux;
+    printf("Disciplina cadastrada com sucesso\n\n");
 }
 
-Periodo* criarPeriodo(int ano, int semestre) {
-
+void criarPeriodo(float codigop)
+{
     Periodo *novoPeriodo = (Periodo *)malloc(sizeof(Periodo));
-    if (novoPeriodo == NULL) {
+    if (novoPeriodo == NULL)
+    {
         printf("Erro ao alocar memória para Periodo.\n");
         exit(1);
     }
-
-    novoPeriodo->ano = ano;
-    novoPeriodo->semestre = semestre;
+    novoPeriodo->codigo = codigop;
     novoPeriodo->alunos = NULL;
     novoPeriodo->disciplinas = NULL;
     novoPeriodo->next = NULL;
@@ -91,68 +110,58 @@ Periodo* criarPeriodo(int ano, int semestre) {
     return novoPeriodo;
 }
 
-void adicionarAluno(Periodo *Periodo, Aluno *aluno) {
-    aluno->next = Periodo->alunos;
-    Periodo->alunos = aluno;
-}
-
-void adicionarPeriodo(Periodo *periodop){
-    periodop->next = periodos;
-    periodos = periodop;
-
-
-}
-
-void adicionarDisciplina(Periodo *periodo, Disciplina *disciplina) {
-    disciplina->next = periodo->disciplinas;
-    periodo->disciplinas = disciplina;
-}
-
-void imprimirAlunos(Periodo *periodop) {
-    printf("Alunos do periodo %d.%d:\n", periodop->ano, periodop->semestre);
+void imprimirAlunos(Periodo *periodop)
+{
+    printf("Alunos do periodo %.1f:\n", periodop->codigo);
     Aluno *atual = periodop->alunos;
-    while (atual != NULL) {
+    while (atual != NULL)
+    {
         printf("codigo: %d, Nome: %s, CPF: %s\n", atual->codigo, atual->nome, atual->CPF);
         atual = atual->next;
     }
+    printf("\n");
 }
 
-void imprimirDisciplinas(Periodo *periodop) {
-    printf("Disciplinas do periodo %d.%d:\n", periodop->ano, periodop->semestre);
+void imprimirDisciplinas(Periodo *periodop)
+{
+    printf("Disciplinas do periodo %.1f:\n", periodop->codigo);
     Disciplina *atual = periodop->disciplinas;
-    while (atual != NULL) {
+    while (atual != NULL)
+    {
         printf("codigo: %d, Nome: %s, Professor: %s, Creditos: %d\n", atual->codigo, atual->nome, atual->professor, atual->creditos);
         atual = atual->next;
     }
+    printf("\n");
 }
 
-void imprimirPeriodos(){
-    printf("Periodos armazenados: \n");
+void imprimirPeriodos()
+{
     Periodo *current = periodos;
-    if(current == NULL){
-        printf("Nao existe período nenhum periodo armazenado\n");
+    if (current == NULL)
+    {
+        printf("\nAinda não há periodos armazenados\n\n");
     }
-    while(current != NULL){
-        printf("%d.%d \n", current->ano, current->semestre);
+    while (current != NULL)
+    {
+        printf("Periodos armazenados: \n");
+        printf("%.1f \n", current->codigo);
         current = current->next;
     }
-    
 }
 
-
-
-int main(){
+int main()
+{
     FILE *logo = fopen("Logo.txt", "r");
-    if (logo == NULL){
+    if (logo == NULL)
+    {
         printf("Erro ao abrir o arquivo");
         return 1;
     }
-
     char linha[600];
-    while(fgets(linha, sizeof(linha), logo) != NULL){
+    while (fgets(linha, sizeof(linha), logo) != NULL)
+    {
         printf("%s", linha);
     }
-
     fclose(logo);
 
     printf("\n");
@@ -160,60 +169,38 @@ int main(){
     printf("\n");
 
     int close = 0;
-
-
-    while(close == 0){       
-
-        char choice1, choice2;
-        
+    while (close == 0)
+    {
         printf("O que voce deseja fazer?\n");
-        printf("1 - Listar os Periodos armazenados\n");
-        printf("2 - Consultar dados de um Periodo\n");
+        printf("1 - Listar os Periodos\n");
+        printf("2 - Acessar Período\n");
         printf("3 - Adicionar um Periodo\n");
         printf("4 - Excluir um Periodo\n");
-        printf("5 - fechar o programa\n");
+        printf("5 - Fechar o programa\n");
 
-        scanf(" %c", &choice1);
-
-        if (choice2 < 49 || choice2 > 53){
-            printf("Por favor responda com uma opção valida \n");
-        }
-
-        if(choice1 == '1'){
-            printf("1");
-            printf("\n");
-
+        int choice1;
+        scanf("%d", &choice1);
+        fflush(stdin);
+        switch (choice1)
+        {
+        case 1:
             imprimirPeriodos();
+            break;
+        case 2:
+            imprimirPeriodos();
+            printf("Digite o período: ");
 
-            printf("O que você deseja fazer?\n");
-            printf("1 - Voltar para o menu principal\n");
-            printf("2 - Encerrar o programa");
-            scanf(" %c", &choice2);
-            
-            if (choice2 < 49 || choice2 > 50){
-                printf("Por favor responda com uma opção valida \n");
-            }
-
-            //Não preciso fazer nada para o programa continuar rodando
-
-            if(choice2 == '2'){
-                close = 1;
-            }
-
-        }
-
-        if(choice1 == '2'){
-            printf("2");
-        }
-
-        if(choice1 == '3'){
-            printf("3");
-
-        }
-
-        if(choice1 == '4'){
-            printf("4");
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        case 5:
+            close++;
+            break;
+        default:
+            printf("\nOpção Inválida!\n");
+            break;
         }
     }
-
 }
