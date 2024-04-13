@@ -75,6 +75,9 @@ void criarAluno(Periodo **p, int codigop, const char *nomep, const char *CPFp)
     novoAluno->next = aux;
     prinf("Aluno cadastrado com sucesso\n\n");
 }
+void novoAluno()
+{
+}
 
 void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *professorp, int creditosp)
 {
@@ -93,6 +96,15 @@ void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *pr
     novaDisciplina->next = aux;
     printf("Disciplina cadastrada com sucesso\n\n");
 }
+void novaDisciplina()
+{
+    char nome[50], professor[50];
+    int creditos;
+    printf("Digite o código da disciplina (4 dígitos): ");
+    printf("Digite o nome da disciplina: ");
+    printf("Digite o nome do professor ministrante: ");
+    printf("Digite a quantidade de créditos da disciplina: ");
+}
 
 void criarPeriodo(float codigop)
 {
@@ -109,7 +121,7 @@ void criarPeriodo(float codigop)
 
     return novoPeriodo;
 }
-
+// Funções de Output
 void imprimirAlunos(Periodo *periodop)
 {
     printf("Alunos do periodo %.1f:\n", periodop->codigo);
@@ -148,8 +160,8 @@ void imprimirPeriodos()
         current = current->next;
     }
 }
-
-int main()
+// Logo do início
+void Logo()
 {
     FILE *logo = fopen("Logo.txt", "r");
     if (logo == NULL)
@@ -167,7 +179,31 @@ int main()
     printf("\n");
     printf("\n");
     printf("\n");
+}
 
+void menuDois()
+{
+    imprimirPeriodos();
+    float escolha;
+    printf("Digite o período: ");
+    scanf("%f", &escolha);
+    fflush(stdin);
+    Periodo *p = buscarPeriodo(escolha);
+    if (p == NULL)
+        printf("O período digitado não consta na base");
+    else
+    {
+    }
+}
+void menuTres()
+{
+}
+void menuQuatro()
+{
+}
+
+void menuPrincipal()
+{
     int close = 0;
     while (close == 0)
     {
@@ -187,13 +223,13 @@ int main()
             imprimirPeriodos();
             break;
         case 2:
-            imprimirPeriodos();
-            printf("Digite o período: ");
-
+            menuDois();
             break;
         case 3:
+            menuTres();
             break;
         case 4:
+            menuQuatro();
             break;
         case 5:
             close++;
@@ -203,4 +239,12 @@ int main()
             break;
         }
     }
+}
+
+int main()
+{
+    Logo();
+    menuPrincipal();
+
+    printf("Até mais!\n");
 }
