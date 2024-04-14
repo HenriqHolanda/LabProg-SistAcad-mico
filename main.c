@@ -504,7 +504,6 @@ void menuPeriodo(Periodo *p)
             printf("Digite a quantidade de créditos da nova disciplina: ");
             scanf(" %d", &c2);
             limparBuffer();
-
             printf("Digite o nome do professor da nova disciplina: ");
             scanf("%99[^\n]", n2);
             limparBuffer();
@@ -516,10 +515,10 @@ void menuPeriodo(Periodo *p)
             printf("Digite o codigo do novo Aluno: ");
             scanf(" %d", &c1);
             limparBuffer();
-            printf("Digite o nome da nova disciplina: ");
-            fgets(n1, sizeof(n1), stdin);
+            printf("Digite o nome da novo Aluno: ");
+            scanf("%99[^\n]", n1);
             limparBuffer();
-            printf("Digite o CPF da nova disciplina: ");
+            printf("Digite o CPF do novo Aluno: ");
             scanf(" %d", &c2);
             limparBuffer();
             criarAluno(p, c1, n1, n2);
