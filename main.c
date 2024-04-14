@@ -29,7 +29,7 @@ typedef struct Rel
 } Rel;
 typedef struct Periodo
 {
-    float codigo;
+    int codigo;
     Aluno *alunos;
     Disciplina *disciplinas;
     struct Periodo *next;
@@ -42,7 +42,7 @@ Rel *rels = NULL;
 Aluno *buscarAluno(Periodo *p, int codigo)
 {
     Aluno *aux = p->alunos;
-    while (aux->codigo != codigo && aux != NULL)
+    while (aux != NULL && aux->codigo != codigo)
     {
         aux = aux->next;
     }
@@ -51,16 +51,15 @@ Aluno *buscarAluno(Periodo *p, int codigo)
 Disciplina *buscarDisciplina(Periodo *p, int codigo)
 {
     Disciplina *aux = p->disciplinas;
-    while (aux->codigo < codigo && aux != NULL)
+    while (aux != NULL && aux->codigo < codigo)
     {
         aux = aux->next;
     }
     return aux;
 }
-Periodo *buscarPeriodo(float codigo)
+Periodo *buscarPeriodo(int codigo)
 { // Retorna o ultimo elemento, o menor entre os maiores ou null
     Periodo *aux = periodos;
-
     while (aux != NULL && aux->codigo < codigo)
     {
         if (aux->next == NULL)
@@ -125,9 +124,8 @@ void removerDisciplina(Periodo **p, int codigo)
         free(aux);
 }
 
-void criarPeriodo(float codigop)
+void criarPeriodo(Periodo **p, int codigop)
 {
-
     Periodo *novoPeriodo = (Periodo *)malloc(sizeof(Periodo));
     Periodo *aux = buscarPeriodo(codigop);
     if (aux == NULL || aux->codigo != codigop)
@@ -164,8 +162,10 @@ void criarPeriodo(float codigop)
     {
         printf("Período já cadastrado\n\n");
     }
+    free(aux);
 }
-void removerPeriodo(float codigo)
+
+void removerPeriodo(int codigo)
 {
     // vou ter que remover todos os alunos e disciplinas
     Periodo *aux = buscarPeriodo(codigo);
@@ -182,7 +182,7 @@ void matricularAluno()
 // Funções de Output
 void imprimirAlunos(Periodo *periodop)
 {
-    printf("Alunos do periodo %.1f:\n", periodop->codigo);
+    printf("Alunos do periodo %.1f:\n", (float)periodop->codigo / 10);
     Aluno *atual = periodop->alunos;
     while (atual != NULL)
     {
@@ -192,10 +192,10 @@ void imprimirAlunos(Periodo *periodop)
     printf("\n");
 }
 
-void imprimirDisciplinas(Periodo *periodop)
+void imprimirDisciplinas(Periodo **periodop)
 {
-    printf("Disciplinas do periodo %.1f:\n", periodop->codigo);
-    Disciplina *atual = periodop->disciplinas;
+    printf("Disciplinas do periodo %.1f:\n", (float)(*periodop)->codigo / 10);
+    Disciplina *atual = (*periodop)->disciplinas;
     while (atual != NULL)
     {
         printf("codigo: %d, Nome: %s, Professor: %s, Creditos: %d\n", atual->codigo, atual->nome, atual->professor, atual->creditos);
@@ -215,7 +215,7 @@ int imprimirPeriodos()
     printf("Periodos armazenados: \n");
     while (current != NULL)
     {
-        printf("%.1f \n", current->codigo);
+        printf("%.1f \n", (float)current->codigo / 10);
         current = current->next;
     }
     return 1;
@@ -250,7 +250,8 @@ void menuDois()
     printf("Digite o período: ");
     scanf("%f", &escolha);
     fflush(stdin);
-    Periodo *p = buscarPeriodo(escolha);
+
+    Periodo *p = buscarPeriodo(round(escolha));
     if (p == NULL)
         printf("O período digitado não consta na base");
     else
@@ -261,14 +262,14 @@ void menuDois()
 void menuTres()
 {
     int ano, semestre;
-    float codigo;
+    int codigo;
     printf("Digite o ano [ex: 2024]: ");
     scanf("%d", &ano);
     fflush(stdin);
     printf("Digite o semestre [1 ou 2]: ");
     scanf("%d", &semestre);
     fflush(stdin);
-    codigo = ano + 0.1 * semestre;
+    codigo = ano + 10 * semestre;
     criarPeriodo(codigo);
 }
 // Menu de Remoção de Período
@@ -321,15 +322,15 @@ int main()
     // menuPrincipal();
 
     // printf("Até mais!\n");
-    criarPeriodo(2023.1);
-    criarPeriodo(2022.1);
+    criarPeriodo(20231);
+    criarPeriodo(20241);
+    criarPeriodo(20251);
+    criarPeriodo(20232);
+    criarPeriodo(20221);
     imprimirPeriodos();
-    criarPeriodo(2024.1);
-    imprimirPeriodos();
-    criarPeriodo(2022.2);
-    imprimirPeriodos();
-    criarPeriodo(2024.2);
-    imprimirPeriodos();
+    Periodo *p1 = buscarPeriodo(20232);
+    criarDisciplina(&p1, 1234, "mat", "eu", 2);
+    imprimirDisciplinas(&p1);
     return 0;
 }
 
