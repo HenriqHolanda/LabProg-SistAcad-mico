@@ -20,13 +20,13 @@ typedef struct Disciplina
     struct Disciplina *next;
 } Disciplina;
 // Lógica usada para implementar matricula
-typedef struct Relacao
+typedef struct Rel
 {
     int codigo;
     int codDisc;
     int codAluno;
     float codPeriodo;
-} Relação;
+} Rel;
 typedef struct Periodo
 {
     float codigo;
@@ -37,6 +37,7 @@ typedef struct Periodo
 } Periodo;
 // Para ter a referencia do primeiro
 Periodo *periodos = NULL;
+Rel *rels = NULL;
 // Funções de busca
 Aluno *buscarAluno(Periodo *p, int codigo)
 {
@@ -57,10 +58,13 @@ Disciplina *buscarDisciplina(Periodo *p, int codigo)
     return aux;
 }
 Periodo *buscarPeriodo(float codigo)
-{
+{ // Retorna o ultimo elemento, o menor entre os maiores ou null
     Periodo *aux = periodos;
-    while (aux->codigo < codigo && aux != NULL)
+
+    while (aux != NULL && aux->codigo < codigo)
     {
+        if (aux->next == NULL)
+            break;
         aux = aux->next;
     }
     return aux;
@@ -123,6 +127,7 @@ void removerDisciplina(Periodo **p, int codigo)
 
 void criarPeriodo(float codigop)
 {
+
     Periodo *novoPeriodo = (Periodo *)malloc(sizeof(Periodo));
     Periodo *aux = buscarPeriodo(codigop);
     if (aux == NULL || aux->codigo != codigop)
@@ -131,24 +136,28 @@ void criarPeriodo(float codigop)
         novoPeriodo->alunos = NULL;
         novoPeriodo->disciplinas = NULL;
         novoPeriodo->next = NULL;
-        if (periodos == NULL)
+        if (aux == NULL)
             periodos = novoPeriodo;
+        else if (aux->previous == NULL)
+        {
+            aux->previous = novoPeriodo;
+            novoPeriodo->next = aux;
+            periodos = novoPeriodo;
+        }
+        else if (aux->next == NULL)
+        {
+            aux->next = novoPeriodo;
+            novoPeriodo->previous = aux;
+        }
         else
         {
-            if (aux->previous == NULL)
-            {
-                aux->previous = novoPeriodo;
-                novoPeriodo->next = aux;
-                periodos = novoPeriodo;
-            }
-            else
-            {
-                aux->previous->next = novoPeriodo;
-                aux->previous = novoPeriodo;
-                novoPeriodo->previous = aux->previous;
-                novoPeriodo->next = aux;
-            }
+            Periodo *previous = aux->previous;
+            previous->next = novoPeriodo;
+            previous = novoPeriodo;
+            novoPeriodo->previous = previous;
+            novoPeriodo->next = aux;
         }
+
         printf("Período cadastrado com sucesso\n\n");
     }
     else
@@ -203,9 +212,9 @@ int imprimirPeriodos()
         printf("\nAinda não há periodos armazenados\n\n");
         return 0;
     }
+    printf("Periodos armazenados: \n");
     while (current != NULL)
     {
-        printf("Periodos armazenados: \n");
         printf("%.1f \n", current->codigo);
         current = current->next;
     }
@@ -308,10 +317,20 @@ void menuPrincipal()
 
 int main()
 {
-    Logo();
-    menuPrincipal();
+    // Logo();
+    // menuPrincipal();
 
-    printf("Até mais!\n");
+    // printf("Até mais!\n");
+    criarPeriodo(2023.1);
+    criarPeriodo(2022.1);
+    imprimirPeriodos();
+    criarPeriodo(2024.1);
+    imprimirPeriodos();
+    criarPeriodo(2022.2);
+    imprimirPeriodos();
+    criarPeriodo(2024.2);
+    imprimirPeriodos();
+    return 0;
 }
 
 // Aluno *carregarAlunos()
