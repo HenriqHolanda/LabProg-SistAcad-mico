@@ -64,7 +64,7 @@ void criarAluno(Periodo **p, int codigop, const char *nomep, const char *CPFp)
     Aluno *novoAluno = (Aluno *)malloc(sizeof(Aluno));
     if (novoAluno == NULL)
     {
-        printf("Erro ao alocar memória para aluno");
+        printf("Erro ao alocar memória para aluno\n\n");
         exit(1);
     }
     novoAluno->codigo = codigop;
@@ -87,7 +87,7 @@ void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *pr
     Disciplina *novaDisciplina = (Disciplina *)malloc(sizeof(Aluno));
     if (novaDisciplina == NULL)
     {
-        printf("Erro ao alocar memória para aluno");
+        printf("Erro ao alocar memória para aluno\n\n");
         exit(1);
     }
     novaDisciplina->codigo = codigop;
@@ -134,13 +134,22 @@ void criarPeriodo(float codigop)
                 novoPeriodo->next = aux;
             }
         }
+        printf("Período cadastrado com sucesso\n\n");
     }
     else
-        printf("Período já cadastrado\n");
+    {
+        printf("Período já cadastrado\n\n");
+        free(novoPeriodo);
+    }
 }
-void removerPeriodo()
+void removerPeriodo(float codigo)
 {
     // vou ter que remover todos os alunos e disciplinas
+    Periodo *aux = buscarPeriodo(codigo);
+    if (aux == NULL)
+    {
+        printf("Período não encontrado");
+    }
 }
 // Matricula de alunos
 void matricularAluno()
@@ -205,7 +214,8 @@ void Logo()
     printf("\n");
     printf("\n");
 }
-// Criei pra organizar o código
+// Menus para dividir operações
+// menu de Acesso ao Período
 void menuDois()
 {
     imprimirPeriodos();
@@ -220,9 +230,21 @@ void menuDois()
     {
     }
 }
+// Menu de Inserção de Período
 void menuTres()
 {
+    int ano, semestre;
+    float codigo;
+    printf("Digite o ano [ex: 2024]: ");
+    scanf("%d", &ano);
+    fflush(stdin);
+    printf("Digite o semestre [1 ou 2]: ");
+    scanf("%d", &semestre);
+    fflush(stdin);
+    codigo = ano + 0.1 * semestre;
+    criarPeriodo(codigo);
 }
+// Menu de Remoção de Período
 void menuQuatro()
 {
 }
@@ -274,12 +296,12 @@ int main()
     printf("Até mais!\n");
 }
 
-Aluno *carregarAlunos()
-{
-}
-Disciplina *carregarDisciplinas()
-{
-}
-void carregarDados()
-{
-}
+// Aluno *carregarAlunos()
+// {
+// }
+// Disciplina *carregarDisciplinas()
+// {
+// }
+// void carregarDados()
+// {
+// }
