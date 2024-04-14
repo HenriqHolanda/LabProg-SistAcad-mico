@@ -19,7 +19,14 @@ typedef struct Disciplina
     int creditos;
     struct Disciplina *next;
 } Disciplina;
-
+// Lógica usada para implementar matricula
+typedef struct Relacao
+{
+    int codigo;
+    int codDisc;
+    int codAluno;
+    float codPeriodo;
+} Relação;
 typedef struct Periodo
 {
     float codigo;
@@ -75,11 +82,14 @@ void criarAluno(Periodo **p, int codigop, const char *nomep, const char *CPFp)
     novoAluno->next = aux;
     printf("Aluno cadastrado com sucesso\n\n");
 }
-void novoAluno()
+
+void removerAluno(Periodo **p, int codigo)
 {
-}
-void removerAluno()
-{
+    Aluno *aux = buscarAluno((*p), codigo);
+    if (aux == NULL)
+        printf("Aluno não encontrado\n\n");
+    else
+        free(aux);
 }
 
 void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *professorp, int creditosp)
@@ -102,8 +112,13 @@ void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *pr
 void novaDisciplina()
 {
 }
-void removerDisciplina()
+void removerDisciplina(Periodo **p, int codigo)
 {
+    Disciplina *aux = buscarDisciplina((*p), codigo);
+    if (aux == NULL)
+        printf("Disciplina não encontrada\n\n");
+    else
+        free(aux);
 }
 
 void criarPeriodo(float codigop)
@@ -139,17 +154,16 @@ void criarPeriodo(float codigop)
     else
     {
         printf("Período já cadastrado\n\n");
-        free(novoPeriodo);
     }
 }
 void removerPeriodo(float codigo)
 {
     // vou ter que remover todos os alunos e disciplinas
     Periodo *aux = buscarPeriodo(codigo);
-    if (aux == NULL)
-    {
+    if (aux == NULL || aux->codigo != codigo)
         printf("Período não encontrado");
-    }
+    else
+        free(aux);
 }
 // Matricula de alunos
 void matricularAluno()
@@ -181,12 +195,13 @@ void imprimirDisciplinas(Periodo *periodop)
     printf("\n");
 }
 
-void imprimirPeriodos()
+int imprimirPeriodos()
 {
     Periodo *current = periodos;
     if (current == NULL)
     {
         printf("\nAinda não há periodos armazenados\n\n");
+        return 0;
     }
     while (current != NULL)
     {
@@ -194,6 +209,7 @@ void imprimirPeriodos()
         printf("%.1f \n", current->codigo);
         current = current->next;
     }
+    return 1;
 }
 // Logo do início
 void Logo()
@@ -218,7 +234,9 @@ void Logo()
 // menu de Acesso ao Período
 void menuDois()
 {
-    imprimirPeriodos();
+    int result = imprimirPeriodos();
+    if (result)
+        return;
     float escolha;
     printf("Digite o período: ");
     scanf("%f", &escolha);
