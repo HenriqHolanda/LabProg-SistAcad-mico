@@ -78,6 +78,9 @@ void criarAluno(Periodo **p, int codigop, const char *nomep, const char *CPFp)
 void novoAluno()
 {
 }
+void removerAluno()
+{
+}
 
 void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *professorp, int creditosp)
 {
@@ -97,6 +100,9 @@ void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *pr
     printf("Disciplina cadastrada com sucesso\n\n");
 }
 void novaDisciplina()
+{
+}
+void removerDisciplina()
 {
 }
 
@@ -132,6 +138,15 @@ void criarPeriodo(float codigop)
     else
         printf("Período já cadastrado\n");
 }
+void removerPeriodo()
+{
+    // vou ter que remover todos os alunos e disciplinas
+}
+// Matricula de alunos
+void matricularAluno()
+{
+}
+
 // Funções de Output
 void imprimirAlunos(Periodo *periodop)
 {
@@ -257,4 +272,14 @@ int main()
     menuPrincipal();
 
     printf("Até mais!\n");
+}
+
+Aluno *carregarAlunos()
+{
+}
+Disciplina *carregarDisciplinas()
+{
+}
+void carregarDados()
+{
 }
