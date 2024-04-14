@@ -53,7 +53,6 @@ Periodo *buscarPeriodo(float codigo)
 {
     Periodo *aux = periodos;
     while (aux->codigo < codigo && aux != NULL)
-        ;
     {
         aux = aux->next;
     }
@@ -105,17 +104,33 @@ void criarPeriodo(float codigop)
 {
     Periodo *novoPeriodo = (Periodo *)malloc(sizeof(Periodo));
     Periodo *aux = buscarPeriodo(codigop);
-    if (aux == NULL)
+    if (aux == NULL || aux->codigo != codigop)
     {
         novoPeriodo->codigo = codigop;
         novoPeriodo->alunos = NULL;
         novoPeriodo->disciplinas = NULL;
         novoPeriodo->next = NULL;
+        if (periodos == NULL)
+            periodos = novoPeriodo;
+        else
+        {
+            if (aux->previous == NULL)
+            {
+                aux->previous = novoPeriodo;
+                novoPeriodo->next = aux;
+                periodos = novoPeriodo;
+            }
+            else
+            {
+                aux->previous->next = novoPeriodo;
+                aux->previous = novoPeriodo;
+                novoPeriodo->previous = aux->previous;
+                novoPeriodo->next = aux;
+            }
+        }
     }
     else
-    {
         printf("Período já cadastrado\n");
-    }
 }
 // Funções de Output
 void imprimirAlunos(Periodo *periodop)
