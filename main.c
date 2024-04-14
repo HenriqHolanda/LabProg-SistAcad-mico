@@ -289,7 +289,9 @@ void imprimirPeriodo(Periodo *head)
 {
     while (head != NULL)
     {
-        printf("%d ", head->codigo);
+        int ano = head->codigo / 10;
+        int semestre = head->codigo - 10 * ano;
+        printf("%d.%d\n", ano, semestre);
         head = head->next;
     }
     printf("\n");
@@ -511,12 +513,24 @@ void menuTres()
     printf("Digite o semestre [1 ou 2]: ");
     scanf("%d", &semestre);
     fflush(stdin);
-    codigo = ano + 10 * semestre;
-    criarPeriodo(codigo);
+    codigo = ano * 10 + semestre;
+    inserirPeriodo(&p, codigo);
+    printf("\n");
 }
 // Menu de Remoção de Período
 void menuQuatro()
 {
+    int ano, semestre;
+    float codigo;
+    printf("Digite o ano [ex: 2024]: ");
+    scanf("%d", &ano);
+    fflush(stdin);
+    printf("Digite o semestre [1 ou 2]: ");
+    scanf("%d", &semestre);
+    fflush(stdin);
+    codigo = ano * 10 + semestre;
+    removerPeriodo(&p, codigo);
+    printf("\n");
 }
 // Tela inicial do programa
 void menuPrincipal()
