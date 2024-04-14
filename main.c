@@ -30,7 +30,7 @@ typedef struct Periodo
 } Periodo;
 // Para ter a referencia do primeiro
 Periodo *periodos = NULL;
-
+// Funções de busca
 Aluno *buscarAluno(Periodo *p, int codigo)
 {
     Aluno *aux = p->alunos;
@@ -42,7 +42,7 @@ Aluno *buscarAluno(Periodo *p, int codigo)
 }
 Disciplina *buscarDisciplina(Periodo *p, int codigo)
 {
-    Disciplina *aux = p->alunos;
+    Disciplina *aux = p->disciplinas;
     while (aux->codigo != codigo && aux != NULL)
     {
         aux = aux->next;
@@ -57,6 +57,7 @@ Periodo *buscarPeriodo(float codigo)
     {
         aux = aux->next;
     }
+    return aux;
 }
 // Funções auxiliares para criação de Entidades
 void criarAluno(Periodo **p, int codigop, const char *nomep, const char *CPFp)
@@ -73,7 +74,7 @@ void criarAluno(Periodo **p, int codigop, const char *nomep, const char *CPFp)
     Aluno *aux = (*p)->alunos;
     (*p)->alunos = novoAluno;
     novoAluno->next = aux;
-    prinf("Aluno cadastrado com sucesso\n\n");
+    printf("Aluno cadastrado com sucesso\n\n");
 }
 void novoAluno()
 {
@@ -98,28 +99,23 @@ void criarDisciplina(Periodo **p, int codigop, const char *nomep, const char *pr
 }
 void novaDisciplina()
 {
-    char nome[50], professor[50];
-    int creditos;
-    printf("Digite o código da disciplina (4 dígitos): ");
-    printf("Digite o nome da disciplina: ");
-    printf("Digite o nome do professor ministrante: ");
-    printf("Digite a quantidade de créditos da disciplina: ");
 }
 
 void criarPeriodo(float codigop)
 {
     Periodo *novoPeriodo = (Periodo *)malloc(sizeof(Periodo));
+    novoPeriodo = buscarPeriodo(codigop);
     if (novoPeriodo == NULL)
     {
-        printf("Erro ao alocar memória para Periodo.\n");
-        exit(1);
+        novoPeriodo->codigo = codigop;
+        novoPeriodo->alunos = NULL;
+        novoPeriodo->disciplinas = NULL;
+        novoPeriodo->next = NULL;
     }
-    novoPeriodo->codigo = codigop;
-    novoPeriodo->alunos = NULL;
-    novoPeriodo->disciplinas = NULL;
-    novoPeriodo->next = NULL;
-
-    return novoPeriodo;
+    else
+    {
+        printf("Período já cadastrado\n");
+    }
 }
 // Funções de Output
 void imprimirAlunos(Periodo *periodop)
@@ -167,7 +163,7 @@ void Logo()
     if (logo == NULL)
     {
         printf("Erro ao abrir o arquivo");
-        return 1;
+        exit(1);
     }
     char linha[600];
     while (fgets(linha, sizeof(linha), logo) != NULL)
@@ -175,12 +171,11 @@ void Logo()
         printf("%s", linha);
     }
     fclose(logo);
-
     printf("\n");
     printf("\n");
     printf("\n");
 }
-
+// Criei pra organizar o código
 void menuDois()
 {
     imprimirPeriodos();
@@ -201,7 +196,7 @@ void menuTres()
 void menuQuatro()
 {
 }
-
+// Tela inicial do programa
 void menuPrincipal()
 {
     int close = 0;
