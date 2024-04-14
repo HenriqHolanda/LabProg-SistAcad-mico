@@ -43,7 +43,7 @@ Aluno *buscarAluno(Periodo *p, int codigo)
 Disciplina *buscarDisciplina(Periodo *p, int codigo)
 {
     Disciplina *aux = p->disciplinas;
-    while (aux->codigo != codigo && aux != NULL)
+    while (aux->codigo < codigo && aux != NULL)
     {
         aux = aux->next;
     }
@@ -52,7 +52,7 @@ Disciplina *buscarDisciplina(Periodo *p, int codigo)
 Periodo *buscarPeriodo(float codigo)
 {
     Periodo *aux = periodos;
-    while (aux->codigo != codigo && aux != NULL)
+    while (aux->codigo < codigo && aux != NULL)
         ;
     {
         aux = aux->next;
@@ -104,8 +104,8 @@ void novaDisciplina()
 void criarPeriodo(float codigop)
 {
     Periodo *novoPeriodo = (Periodo *)malloc(sizeof(Periodo));
-    novoPeriodo = buscarPeriodo(codigop);
-    if (novoPeriodo == NULL)
+    Periodo *aux = buscarPeriodo(codigop);
+    if (aux == NULL)
     {
         novoPeriodo->codigo = codigop;
         novoPeriodo->alunos = NULL;
