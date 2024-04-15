@@ -244,7 +244,7 @@ Aluno *buscarAlunoNome(Periodo *periodo, const char *nome)
     Aluno *alunoAtual = periodo->alunos;
     while (alunoAtual != NULL)
     {
-        if (!strcmp(alunoAtual->nome, nome))
+        if (strcmp(alunoAtual->nome, nome) == 0)
         {
             return alunoAtual;
         }
@@ -259,7 +259,7 @@ Disciplina *buscarDisciplinaNome(Periodo *periodo, const char *nome)
     Disciplina *disciplinaAtual = periodo->disciplinas;
     while (disciplinaAtual != NULL)
     {
-        if (!strcmp(disciplinaAtual->nome, nome))
+        if (strcmp(disciplinaAtual->nome, nome) == 0)
         {
             return disciplinaAtual;
         }
@@ -669,6 +669,7 @@ void menuPeriodo(Periodo *p)
             printf("1 - código\n");
             printf("2 - nome\n");
             scanf(" %d", &c1);
+            limparBuffer();
             if (c1 == 1)
             {
                 printf("Digite o código da disciplina: ");
@@ -688,8 +689,9 @@ void menuPeriodo(Periodo *p)
                 }
                 printf("\n");
             }
-            if (c1 == 2)
+            else if (c1 == 2)
             {
+                printf("oi\n");
                 printf("Digite o nome da disciplina: ");
                 scanf("%99[^\n]", n1);
                 limparBuffer();
@@ -720,6 +722,7 @@ void menuPeriodo(Periodo *p)
             printf("1 - codigo\n");
             printf("2 - nome\n");
             scanf(" %d", &c1);
+            limparBuffer();
             if (c1 == 1)
             {
                 printf("Digite o codigo do Aluno: ");
