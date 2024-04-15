@@ -1,0 +1,9 @@
+11
+ALUNO,1,aluno1,prof2,1
+ALUNO,2,aluno2,prof2,1
+DISCIPLINA,1,dis1,prof1,10
+DISCIPLINA,2,dis2,prof2,20
+
+12
+ALUNO,46,teste,Ä∑Å*sv,1
+
