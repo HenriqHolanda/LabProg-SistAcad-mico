@@ -35,17 +35,31 @@ typedef struct Periodo
     struct Periodo *next;
     struct Periodo *previous;
 } Periodo;
-Periodo *p;
-
 typedef struct Rel
 {
-    int codPeriodo;
-    int codAluno;
-    int codDisc;
+    int periodo;
+    int codaluno;
+    int coddisciplina;
+    struct Rel *next;
+
 } Rel;
+
+// Primeiros nós
+Periodo *p = NULL;
+Rel *r = NULL;
 // Função para adicionar um aluno a uma lista de alunos
 void criarAluno(Periodo *periodo, int codigo, const char *nome, const char *CPF)
 {
+    Aluno *alunoAtual = periodo->alunos;
+    while (alunoAtual != NULL)
+    {
+        if (alunoAtual->codigo == codigo)
+        {
+            printf("Codigo já cadastrado\n\n");
+            return; // Retorna 1 se o código já existe
+        }
+        alunoAtual = alunoAtual->next;
+    }
     Aluno *novoAluno = (Aluno *)malloc(sizeof(Aluno));
     if (novoAluno == NULL)
     {
@@ -62,6 +76,16 @@ void criarAluno(Periodo *periodo, int codigo, const char *nome, const char *CPF)
 // Função para adicionar uma disciplina a um período
 void criarDisciplina(Periodo *periodo, int codigo, const char *nome, const char *professor, int creditos)
 {
+    Disciplina *disciplinaAtual = periodo->disciplinas;
+    while (disciplinaAtual != NULL)
+    {
+        if (disciplinaAtual->codigo == codigo)
+        {
+            printf("Codigo já cadastrado\n\n");
+            return; // Retorna 1 se o código já existe
+        }
+        disciplinaAtual = disciplinaAtual->next;
+    }
     Disciplina *novaDisciplina = (Disciplina *)malloc(sizeof(Disciplina));
     if (novaDisciplina == NULL)
     {
@@ -76,6 +100,7 @@ void criarDisciplina(Periodo *periodo, int codigo, const char *nome, const char 
     periodo->disciplinas = novaDisciplina;
 }
 
+// Função para remover um aluno de um período
 void removerAlunoCodigo(Periodo *periodo, int codigo)
 {
     Aluno *atual = periodo->alunos;
@@ -128,6 +153,7 @@ void removerDisciplinaCodigo(Periodo *periodo, int codigo)
     }
     printf("Disciplina com o codigo %d nao encontrada\n\n", codigo);
 }
+
 // Função para remover um aluno pelo nome
 void removerAlunoNome(Periodo *periodo, const char *nome)
 {
@@ -330,6 +356,7 @@ Periodo *buscarPeriodo(Periodo *head, int codigo)
     return head;
 }
 
+// Função para buscar e imprimir todas as disciplinas de um período
 void imprimirAlunos(Periodo *periodo)
 {
     int ano = periodo->codigo / 10;
@@ -338,9 +365,10 @@ void imprimirAlunos(Periodo *periodo)
     Aluno *alunoAtual = periodo->alunos;
     while (alunoAtual != NULL)
     {
-        printf("Codigo: %d, Nome: %s", alunoAtual->codigo, alunoAtual->nome);
+        printf("Codigo: %d, Nome: %s\n", alunoAtual->codigo, alunoAtual->nome);
         alunoAtual = alunoAtual->next;
     }
+    printf("\n");
 }
 
 // Função para buscar e imprimir todas as disciplinas de um período
@@ -352,10 +380,12 @@ void imprimirDisciplinas(Periodo *periodo)
     Disciplina *disciplinaAtual = periodo->disciplinas;
     while (disciplinaAtual != NULL)
     {
-        printf("Codigo: %d, Nome: %s", disciplinaAtual->codigo, disciplinaAtual->nome);
+        printf("Codigo: %d, Nome: %s\n", disciplinaAtual->codigo, disciplinaAtual->nome);
         disciplinaAtual = disciplinaAtual->next;
     }
+    printf("\n");
 }
+
 // Função para imprimir a lista
 void imprimirPeriodo(Periodo *head)
 {
@@ -375,6 +405,199 @@ void imprimirPeriodo(Periodo *head)
         printf("Nenhum periodo armazenado\n");
     }
     printf("\n");
+}
+
+// Função para salvar os dados em arquivo
+void salvarPeriodos(Periodo *head, const char *nomeArquivo)
+{
+    FILE *arquivo = fopen(nomeArquivo, "w");
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    // Percorre a lista de períodos e escreve cada um no arquivo
+    Periodo *periodoAtual = head;
+    while (periodoAtual != NULL)
+    {
+        fprintf(arquivo, "%d\n", periodoAtual->codigo);
+
+        // Salva os alunos do período
+        Aluno *alunoAtual = periodoAtual->alunos;
+        while (alunoAtual != NULL)
+        {
+            fprintf(arquivo, "ALUNO,%d,%s,%s,1\n", alunoAtual->codigo, alunoAtual->nome, alunoAtual->CPF);
+            alunoAtual = alunoAtual->next;
+        }
+
+        // Salva as disciplinas do período
+        Disciplina *disciplinaAtual = periodoAtual->disciplinas;
+        while (disciplinaAtual != NULL)
+        {
+            fprintf(arquivo, "DISCIPLINA,%d,%s,%s,%d\n", disciplinaAtual->codigo, disciplinaAtual->nome, disciplinaAtual->professor, disciplinaAtual->creditos);
+            disciplinaAtual = disciplinaAtual->next;
+        }
+
+        // Escreve uma linha em branco para separar os períodos
+        fprintf(arquivo, "\n");
+
+        periodoAtual = periodoAtual->next;
+    }
+
+    fclose(arquivo);
+}
+// Função para coletar os dados do arquivo
+Periodo *lerPeriodos(const char *nomeArquivo)
+{
+    FILE *arquivo = fopen(nomeArquivo, "r");
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return NULL;
+    }
+
+    Periodo *head = NULL;         // Cabeça da lista de períodos
+    Periodo *periodoAtual = NULL; // Aponta para o período atual durante a leitura
+
+    char linha[100]; // Buffer para armazenar cada linha lida do arquivo
+
+    // Percorre o arquivo linha por linha
+    while (fgets(linha, sizeof(linha), arquivo) != NULL)
+    {
+        // Se a linha estiver em branco, passa para o próximo período
+        if (strcmp(linha, "\n") == 0)
+        {
+            continue;
+        }
+
+        // Se a linha começa com um número, é o código de um novo período
+        int codigo;
+        if (sscanf(linha, "%d", &codigo) == 1)
+        {
+            // Cria um novo período e o adiciona à lista
+            Periodo *novoPeriodo = criarPeriodo(codigo);
+            if (head == NULL)
+            {
+                head = novoPeriodo;
+            }
+            else
+            {
+                periodoAtual->next = novoPeriodo;
+            }
+            periodoAtual = novoPeriodo;
+        }
+        else
+        {
+            // Caso contrário, é uma linha de aluno ou disciplina
+            char tipo[20];
+            int codigo;
+            char nome[50];
+            char naosei[50]; // cpf ou professor
+            int creditos;
+
+            sscanf(linha, "%[^,],%d,%[^,],%[^,],%d", tipo, &codigo, nome, naosei, &creditos);
+
+            // Verifica se é uma linha de aluno ou disciplina
+            if (strcmp(tipo, "ALUNO") == 0)
+            {
+                // Adiciona o aluno ao período atual
+                criarAluno(periodoAtual, codigo, nome, naosei);
+            }
+            else if (strcmp(tipo, "DISCIPLINA") == 0)
+            {
+                // Adiciona a disciplina ao período atual
+                criarDisciplina(periodoAtual, codigo, nome, naosei, creditos);
+            }
+        }
+    }
+    fclose(arquivo);
+    return head;
+}
+Rel *Matricula(int periodop, int codalunop, int coddisciplinap)
+{
+    Rel *novaMatricula = (Rel *)malloc(sizeof(Rel));
+    if (novaMatricula == NULL)
+    {
+        printf("Erro ao alocar memória.\n");
+        exit(1);
+    }
+    novaMatricula->periodo = periodop;
+    novaMatricula->codaluno = codalunop;
+    novaMatricula->coddisciplina = coddisciplinap;
+    novaMatricula->next = NULL;
+    return novaMatricula;
+}
+
+void inserirMatricula(Rel **head, int periodop, int codalunop, int coddisciplinap)
+{
+    Rel *novaMatricula = Matricula(periodop, codalunop, coddisciplinap);
+    if (*head == NULL)
+    {
+        *head = novaMatricula;
+    }
+    else
+    {
+        Rel *current = *head;
+        while (current->next != NULL)
+        {
+            current = current->next;
+        }
+        current->next = novaMatricula;
+    }
+}
+
+void salvarRel(Rel *r, const char *q)
+{
+    FILE *arquivo = fopen(q, "w");
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    // Percorre a lista de períodos e escreve cada um no arquivo
+    Rel *rAtual = r;
+    while (rAtual != NULL)
+    {
+        fprintf(arquivo, "%d,%d,%d\n", rAtual->periodo, rAtual->codaluno, rAtual->coddisciplina);
+        // Escreve uma linha em branco para separar os períodos
+
+        rAtual = rAtual->next;
+    }
+
+    fclose(arquivo);
+}
+Rel *lerRel(const char *q)
+{
+    FILE *arquivo = fopen(q, "r");
+    if (arquivo == NULL)
+    {
+        printf("Erro ao abrir o arquivo.\n");
+        return NULL;
+    }
+    char linha[16];
+
+    Rel *rel = NULL;
+    Rel *relAtual = NULL;
+    int periodo, aluno, disciplina;
+    while (fgets(linha, sizeof(linha), arquivo) != NULL)
+    {
+        sscanf(linha, "%d,%d,%d", &periodo, &aluno, &disciplina);
+        Rel *novaRel = Matricula(periodo, aluno, disciplina);
+        if (rel == NULL)
+        {
+            rel = novaRel;
+        }
+        else
+        {
+            relAtual->next = novaRel;
+        }
+        relAtual = novaRel;
+    }
+
+    fclose(arquivo);
+    return rel;
 }
 
 // Logo do início
@@ -412,6 +635,7 @@ void menuPeriodo(Periodo *p)
         Aluno a1;
         char n1[50];
         char n2[50];
+        Rel *busca = r;
 
         printf("\nO que voce deseja fazer?\n");
         printf("1 - Listar Disciplinas\n");
@@ -422,7 +646,9 @@ void menuPeriodo(Periodo *p)
         printf("6 - Adicionar um aluno\n");
         printf("7 - Remover uma Disciplina\n");
         printf("8 - Remover um aluno\n");
-        printf("9 - Voltar ao menu principal\n");
+        printf("9 - Matricular Aluno em Disciplina\n");
+        printf("10 - Desmatricular Aluno em Disciplina\n");
+        printf("11 - Voltar ao menu principal\n");
 
         int choice1;
         scanf("%d", &choice1);
@@ -450,6 +676,17 @@ void menuPeriodo(Periodo *p)
 
                 d1 = *buscarDisciplinaCodigo(p, c2);
                 printf("Codigo: %d, Nome:%s, Creditos: %d, Professor: %s, \n", d1.codigo, d1.nome, d1.creditos, d1.professor);
+                printf("Alunos Matriculados: \n");
+                while (busca != NULL)
+                {
+                    if (busca->periodo == p->codigo && busca->coddisciplina == d1.codigo)
+                    {
+                        a1 = *buscarAlunoCodigo(p, busca->codaluno);
+                        printf("Codigo: %d, Nome: %s \n", a1.codigo, a1.nome);
+                    }
+                    busca = busca->next;
+                }
+                printf("\n");
             }
             if (c1 == 2)
             {
@@ -458,6 +695,17 @@ void menuPeriodo(Periodo *p)
 
                 d1 = *buscarDisciplinaNome(p, n1);
                 printf("Codigo: %d, Nome:%s, Creditos: %d, Professor: %s, \n", d1.codigo, d1.nome, d1.creditos, d1.professor);
+                printf("Alunos Matriculados: \n");
+                while (busca != NULL)
+                {
+                    if (busca->periodo == p->codigo && busca->coddisciplina == d1.codigo)
+                    {
+                        a1 = *buscarAlunoCodigo(p, busca->codaluno);
+                        printf("Codigo: %d, Nome: %s \n", a1.codigo, a1.nome);
+                    }
+                    busca = busca->next;
+                }
+                printf("\n");
             }
 
             if (c1 < 1 || c1 > 2)
@@ -478,6 +726,17 @@ void menuPeriodo(Periodo *p)
 
                 a1 = *buscarAlunoCodigo(p, c2);
                 printf("Codigo: %d, Nome:%s, CPF: %s\n", a1.codigo, a1.nome, a1.CPF);
+                printf("Disciplinas do aluno: \n");
+                while (busca != NULL)
+                {
+                    if (busca->periodo == p->codigo && busca->codaluno == a1.codigo)
+                    {
+                        d1 = *buscarDisciplinaCodigo(p, busca->coddisciplina);
+                        printf("Código: %d, Nome da Disciplina: %s \n", d1.codigo, d1.nome);
+                    }
+                    busca = busca->next;
+                }
+                printf("\n");
             }
             if (c1 == 2)
             {
@@ -486,6 +745,16 @@ void menuPeriodo(Periodo *p)
 
                 a1 = *buscarAlunoNome(p, n1);
                 printf("Codigo: %d, Nome:%s, CPF: %s\n", a1.codigo, a1.nome, a1.CPF);
+                printf("Disciplinas do aluno: \n");
+                while (busca != NULL)
+                {
+                    if (busca->periodo == p->codigo && busca->codaluno == a1.codigo)
+                    {
+                        d1 = *buscarDisciplinaCodigo(p, busca->coddisciplina);
+                        printf("Código: %d, Nome da Disciplina: %s \n", d1.codigo, d1.nome);
+                    }
+                    busca = busca->next;
+                }
             }
 
             if (c1 < 1 || c1 > 2)
@@ -541,7 +810,7 @@ void menuPeriodo(Periodo *p)
             if (c1 == 2)
             {
                 printf("Digite o nome da disciplina: ");
-                scanf(" %s", n1);
+                scanf("%99[^\n]", n1);
                 limparBuffer();
                 removerDisciplinaNome(p, n1);
             }
@@ -562,12 +831,28 @@ void menuPeriodo(Periodo *p)
             if (c1 == 2)
             {
                 printf("Digite o nome da disciplina: ");
-                scanf(" %s", n1);
+                scanf("%99[^\n]", n1);
                 limparBuffer();
                 removerAlunoNome(p, n1);
             }
             break;
         case 9:
+            printf("Digite o codigo do aluno que voce deseja matricular: ");
+            scanf(" %d", &c1);
+            limparBuffer();
+            printf("Digite o codigo da disciplina que você deseja matricular: ");
+            scanf(" %d", &c2);
+            limparBuffer();
+
+            inserirMatricula(&r, p->codigo, c1, c2);
+            break;
+        case 10:
+            printf("Digite o codigo do aluno que voce deseja desmatricular: ");
+            scanf(" %d", &c1);
+            printf("Digite o codigo da disciplina que você deseja desmatricular: ");
+            // scanf(" %d", &c2);
+            break;
+        case 11:
             close++;
             break;
         default:
@@ -677,8 +962,12 @@ void menuPrincipal()
 
 int main()
 {
+    p = lerPeriodos("dado.txt");
+    r = lerRel("rel.txt");
     Logo();
     menuPrincipal();
-
+    salvarPeriodos(p, "dado.txt");
+    salvarRel(r, "rel.txt");
     printf("Ate mais!\n");
+    return 0;
 }
